@@ -9,7 +9,7 @@ The [cumulative distribution function](https://en.wikipedia.org/wiki/Cumulative_
 <div class="equation" align="center" data-raw-text="F(x;\lambda) = \begin{cases} 0 &amp; \text{ for } x \le 0 \\
 e^{-\lambda} \sum_{i=0}^{\lfloor x\rfloor} \frac{\lambda^i}{i!} &amp; \text{ for } x > 0
 \end{cases}" data-equation="eq:cdf">
-	<img src="" alt="Cumulative distribution function for a Poisson distribution.">
+	<img src="https://cdn.rawgit.com/distributions-io/poisson-cdf/68fcd1ed9f3e335679f49784af42a5e076088c1a/docs/img/eqn.svg" alt="Cumulative distribution function for a Poisson distribution.">
 	<br>
 </div>
 
