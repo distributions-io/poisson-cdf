@@ -6,12 +6,14 @@ Cumulative Distribution Function
 
 The [cumulative distribution function](https://en.wikipedia.org/wiki/Cumulative_distribution_function) for a [Poisson](https://en.wikipedia.org/wiki/Poisson_distribution) random variable is
 
-<div class="equation" align="center" data-raw-text="" data-equation="eq:cdf">
+<div class="equation" align="center" data-raw-text="F(x;\lambda) = \begin{cases} 0 &amp; \text{ for } x \le 0 \\
+e^{-\lambda} \sum_{i=0}^{\lfloor x\rfloor} \frac{\lambda^i}{i!} &amp; \text{ for } x > 0
+\end{cases}" data-equation="eq:cdf">
 	<img src="" alt="Cumulative distribution function for a Poisson distribution.">
 	<br>
 </div>
 
-where `lambda` is the mean parameter.
+where `lambda` is the mean parameter. Internally, the module evaluates the CDF by evaluating the upper regularized [gamma function](https://github.com/compute-io/gammainc) at input values `lambda` and `floor( x ) + 1`.
 
 ## Installation
 
@@ -40,32 +42,32 @@ var matrix = require( 'dstructs-matrix' ),
 	i;
 
 out = cdf( 1 );
-// returns
+// returns ~0.736
 
-x = [ -4, -2, 0, 2, 4 ];
+x = [ -1, 0, 1, 2, 3 ];
 out = cdf( x );
-// returns [...]
+// returns [ 0, ~0.368, ~0.736, ~0.92, ~0.981 ]
 
 x = new Float32Array( x );
 out = cdf( x );
-// returns Float64Array( [...] )
+// returns Float64Array( [0,~0.368,~0.736,~0.92,~0.981] )
 
 x = new Float32Array( 6 );
 for ( i = 0; i < 6; i++ ) {
-	x[ i ] = i - 3;
+	x[ i ] = i;
 }
 mat = matrix( x, [3,2], 'float32' );
 /*
-	[ -3 -2
-	  -1  0
-	   1  2 ]
+	[ 0 1
+	  2 3
+	  4 5 ]
 */
 
 out = cdf( mat );
 /*
-	[
-
-	   ]
+	[ ~0.368 ~0.736
+	  ~0.92  ~0.981
+	  ~0.996 ~0.999 ]
 */
 ```
 
@@ -81,23 +83,23 @@ The function accepts the following `options`:
 A [Poisson](https://en.wikipedia.org/wiki/Poisson_distribution) distribution is a function of 1 parameter(s): `lambda`(mean parameter). By default, `lambda` is equal to `1`. To adjust either parameter, set the corresponding option(s).
 
 ``` javascript
-var x = [ -4, -2, 0, 2, 4 ];
+var x = [ -1, 0, 1, 2, 3 ];
 
 var out = cdf( x, {
 	'lambda': 6
 });
-// returns [...]
+// returns [ 0, ~0.00248, ~0.0174, ~0.062, ~0.151 ]
 ```
 
 For non-numeric `arrays`, provide an accessor `function` for accessing `array` values.
 
 ``` javascript
 var data = [
-	[0,-4],
-	[1,-2],
-	[2,0],
+	[0,-1],
+	[1,0],
+	[2,1],
 	[3,2],
-	[4,4],
+	[4,3],
 ];
 
 function getValue( d, i ) {
@@ -107,7 +109,7 @@ function getValue( d, i ) {
 var out = cdf( data, {
 	'accessor': getValue
 });
-// returns [...]
+// returns [ 0, ~0.368, ~0.736, ~0.92, ~0.981 ]
 ```
 
 
@@ -115,11 +117,11 @@ To [deepset](https://github.com/kgryte/utils-deep-set) an object `array`, provid
 
 ``` javascript
 var data = [
-	{'x':[0,-4]},
-	{'x':[1,-2]},
-	{'x':[2,0]},
+	{'x':[0,-1]},
+	{'x':[1,0]},
+	{'x':[2,1]},
 	{'x':[3,2]},
-	{'x':[4,4]},
+	{'x':[4,3]},
 ];
 
 var out = cdf( data, {
@@ -128,11 +130,11 @@ var out = cdf( data, {
 });
 /*
 	[
-		{'x':[0,]},
-		{'x':[1,]},
-		{'x':[2,]},
-		{'x':[3,]},
-		{'x':[4,]},
+		{'x':[0,0]},
+		{'x':[1,~0.368]},
+		{'x':[2,~0.736]},
+		{'x':[3,~0.92]},
+		{'x':[4,~0.981]},
 	]
 */
 
@@ -145,18 +147,18 @@ By default, when provided a [`typed array`](https://developer.mozilla.org/en-US/
 ``` javascript
 var x, out;
 
-x = new Float64Array( [-4,-2,0,2,4] );
+x = new Float64Array( [-1,0,1,2,3] );
 
 out = cdf( x, {
 	'dtype': 'float32'
 });
-// returns Float32Array( [...] )
+// returns Float32Array( [0,~0.368,~0.736,~0.92,~0.981] )
 
 // Works for plain arrays, as well...
-out = cdf( [-4,-2,0,2,4], {
+out = cdf( [-1,0,1,2,3], {
 	'dtype': 'float32'
 });
-// returns Float32Array( [...] )
+// returns Float32Array( [0,~0.368,~0.736,~0.92,~0.981] )
 ```
 
 By default, the function returns a new data structure. To mutate the input data structure (e.g., when input values can be discarded or when optimizing memory usage), set the `copy` option to `false`.
@@ -168,34 +170,34 @@ var bool,
 	x,
 	i;
 
-x = [ -4, -2, 0, 2, 4 ];
+x = [ -1, 0, 1, 2, 3 ];
 
 out = cdf( x, {
 	'copy': false
 });
-// returns [...]
+// returns [ 0, ~0.368, ~0.736, ~0.92, ~0.981 ]
 
 bool = ( x === out );
 // returns true
 
 x = new Float32Array( 6 );
 for ( i = 0; i < 6; i++ ) {
-	x[ i ] = i - 3 ;
+	x[ i ] = i;
 }
 mat = matrix( x, [3,2], 'float32' );
 /*
-	[ -3 -2
-	  -1  0
-	   1  2 ]
+	[ 0 1
+	  2 3
+	  4 5 ]
 */
 
 out = cdf( mat, {
 	'copy': false
 });
 /*
-	[
-
-	   ]
+	[ ~0.368 ~0.736
+	  ~0.92  ~0.981
+	  ~0.996 ~0.999 ]
 */
 
 bool = ( mat === out );
@@ -265,7 +267,7 @@ var data,
 // Plain arrays...
 data = new Array( 10 );
 for ( i = 0; i < data.length; i++ ) {
-	data[ i ] = i - 5;
+	data[ i ] = i;
 }
 out = cdf( data );
 
@@ -296,7 +298,7 @@ out = cdf( data, {
 // Typed arrays...
 data = new Float32Array( 10 );
 for ( i = 0; i < data.length; i++ ) {
-	data[ i ] = i - 5;
+	data[ i ] = i;
 }
 out = cdf( data );
 

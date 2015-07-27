@@ -1,8 +1,8 @@
 options( digits = 16 )
 library( jsonlite )
 
-lambda = 1
-x = c( -5, -2.5, 0, 2.5, 5 )
+lambda = 3
+x = c( -2.5, 0, 2.5, 5, 10 )
 y = ppois( x, lambda )
 
 cat( y, sep = ",\n" )
